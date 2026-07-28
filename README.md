@@ -1,9 +1,11 @@
 
 # pysociome
 
-> Operationalizing Social Determinants of Health (SDoH) Data in Python.
+Operationalizing Social Determinants of Health (SDoH) Data in Python.
 
 `pysociome` is a Python translation of the original R package [`sociome`](https://cran.r-project.org/package=sociome). It provides a flexible and powerful framework for calculating the **Area Deprivation Index (ADI)** and **Berg Indices (ADI-3)** for US geographic areas (states, counties, tracts, block groups, and ZCTAs).
+
+---
 
 ## Features
 
@@ -15,6 +17,8 @@
 - **Imputation**: Handles missing census data using iterative multivariate imputation (MICE-equivalent).
 - **Census Integration**: Built-in client to fetch data directly from the US Census Bureau APIs (ACS and Decennial).
 - **Relativity**: Allows for custom reference populations by providing specific GEOIDs.
+
+---
 
 ## Installation
 
@@ -33,6 +37,8 @@ If you want to make changes to the code:
 ```bash
 pip install -e .
 ```
+
+---
 
 ## Setup: Census API Key
 
@@ -65,6 +71,8 @@ from pysociome import CensusClient
 
 client = CensusClient(key="your_actual_key_here")
 ```
+
+---
 
 ---
 
@@ -109,6 +117,8 @@ results = calculate_adi(raw_data)
 print(results[['GEOID', 'NAME', 'ADI', 'Financial_Strength']])
 ```
 
+---
+
 ## The 15 ADI Indicators
 
 The package automatically calculates 15 socioeconomic indicators from raw Census variables. Below is the mapping for the **American Community Survey (ACS)**:
@@ -133,6 +143,8 @@ The package automatically calculates 15 socioeconomic indicators from raw Census
 
 *Note: For block groups in 2015-2016, the package automatically substitutes `B19013_001` (Median Household Income) for `B19113_001` (Median Family Income) as per Census Bureau recommendations.*
 
+---
+
 ## Dependencies
 
 - `pandas`
@@ -140,11 +152,15 @@ The package automatically calculates 15 socioeconomic indicators from raw Census
 - `scikit-learn`
 - `requests`
 
-## Authors & Credits
+---
+
+## Authors and Credits
 
 This package was written by **Hossein Lotfi**. It is a Python translation of the original `sociome` R package developed by Nik Krieger, Jarrod Dalton, Cindy Wang, and Adam Perzynski.
 
 The development of the original software was supported by a research grant from the National Institutes of Health/National Institute on Aging (Grant Number: 5R01AG055480-02).
+
+---
 
 ## License
 
