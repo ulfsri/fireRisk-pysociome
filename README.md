@@ -39,24 +39,22 @@ pip install -e .
 `pysociome` fetches data directly from the [US Census Bureau API](https://www.census.gov/data/developers.html), which requires a **free API key**.
 
 ### Step 1 — Get a key
-Register at **https://api.census.gov/data/key_signup.html** and a key will be emailed to you immediately (free, no approval needed).
+Register at **https://api.census.gov/data/key_signup.html** — a key will be emailed to you immediately (free, no approval needed).
 
-### Step 2 — Add the key to your project
+### Step 2 — Save the key with the built-in CLI
 
-Copy the included template to a `.env` file in your project directory:
-
-```bash
-cp .env.template .env
-```
-
-Then open `.env` and replace the placeholder with your real key:
+After installing `pysociome`, run this once from your project directory:
 
 ```bash
-# .env
-Census_API_KEY = your_actual_key_here
+pysociome set_api YOUR_CENSUS_API_KEY_HERE
 ```
 
-`CensusClient` automatically searches for this file in the current working directory and its parents — no further configuration needed.
+This writes (or updates) `Census_API_KEY` in a `.env` file in your current directory. `CensusClient` loads it automatically — no further configuration needed.
+
+```
+Census API key created in /your/project/.env
+Make sure .env is listed in your .gitignore — never commit your API key.
+```
 
 > **Security note:** `.env` is listed in `.gitignore` and will never be committed to version control. Never share or commit your Census API key.
 

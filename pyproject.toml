@@ -22,6 +22,9 @@ Homepage = "https://github.com/ulfsri/fireRisk-pysociome"
 Repository = "https://github.com/ulfsri/fireRisk-pysociome"
 Issues = "https://github.com/ulfsri/fireRisk-pysociome/issues"
 
+[project.scripts]
+pysociome = "pysociome.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["pysociome*"]
