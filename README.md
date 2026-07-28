@@ -34,6 +34,42 @@ If you want to make changes to the code:
 pip install -e .
 ```
 
+## Setup: Census API Key
+
+`pysociome` fetches data directly from the [US Census Bureau API](https://www.census.gov/data/developers.html), which requires a **free API key**.
+
+### Step 1 — Get a key
+Register at **https://api.census.gov/data/key_signup.html** and a key will be emailed to you immediately (free, no approval needed).
+
+### Step 2 — Add the key to your project
+
+Copy the included template to a `.env` file in your project directory:
+
+```bash
+cp .env.template .env
+```
+
+Then open `.env` and replace the placeholder with your real key:
+
+```bash
+# .env
+Census_API_KEY = your_actual_key_here
+```
+
+`CensusClient` automatically searches for this file in the current working directory and its parents — no further configuration needed.
+
+> **Security note:** `.env` is listed in `.gitignore` and will never be committed to version control. Never share or commit your Census API key.
+
+### Alternative: pass the key directly in code
+
+```python
+from pysociome import CensusClient
+
+client = CensusClient(key="your_actual_key_here")
+```
+
+---
+
 ## Quick Start
 
 ### 1. Calculate ADI from a DataFrame
@@ -54,33 +90,25 @@ print(results[['GEOID', 'NAME', 'ADI', 'Financial_Strength']])
 ```
 
 ### 2. Fetch Data and Calculate
-The package includes a `CensusClient` to fetch data. You can provide your API key directly or use a `.env` file.
-
-#### Using a .env file (Recommended)
-Create a file named `.env` in your project root with your Census API key:
-```bash
-# Get your key at: https://api.census.gov/data/key_signup.html
-Census_API_KEY = your_api_key_here
-```
-
-Then the `CensusClient` will load it automatically:
+After setting up your Census API key (see above), use `CensusClient` to fetch ACS data and compute ADI in one workflow:
 
 ```python
-from pysociome import CensusClient
+from pysociome import CensusClient, calculate_adi
 
-# Automatically loads key from .env
+# Loads key automatically from .env
 client = CensusClient()
 
-# Example: Fetch 2022 ACS 5-year data for all tracts in Ohio (State FIPS 39)
+# Fetch 2022 ACS 5-year data for all tracts in Ohio (State FIPS 39)
 raw_data = client.get_acs(
-    year=2022, 
-    variables=["B19113_001", "B25088_002"], 
-    geography="tract:*", 
+    year=2022,
+    variables=["B19113_001", "B25088_002"],
+    geography="tract:*",
     state="39"
 )
 
-# Calculate ADI
+# Calculate ADI and sub-indices
 results = calculate_adi(raw_data)
+print(results[['GEOID', 'NAME', 'ADI', 'Financial_Strength']])
 ```
 
 ## The 15 ADI Indicators
