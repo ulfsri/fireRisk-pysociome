@@ -121,6 +121,8 @@ print(results[['GEOID', 'NAME', 'ADI', 'Financial_Strength']])
 
 ## The 15 ADI Indicators
 
+`pysociome` implements the **Neighborhood Atlas formulation** of ADI (Kind et al., University of Wisconsin), not the original Singh (2003) formulation. The two versions differ in their indicator set: the Neighborhood Atlas version uses 15 socioeconomic indicators covering income, housing, employment, and education. It does **not** include age-demographic variables (e.g., population under 5, ages 5-9, or age 65+) — those appear in the Singh (2003) version only. The Neighborhood Atlas formulation is the current standard used by the NERIS Fire Risk Assessment pipeline.
+
 The package automatically calculates 15 socioeconomic indicators from raw Census variables. Below is the mapping for the **American Community Survey (ACS)**:
 
 | Indicator | Target Name | Primary ACS Variables Used |
@@ -142,6 +144,8 @@ The package automatically calculates 15 socioeconomic indicators from raw Census
 | **% Crowded Housing** | `pctHouseholdsWithOverOnePersonPerRoom` | `B25014_005` to `007`, `011` to `013` / `B25014_001` |
 
 *Note: For block groups in 2015-2016, the package automatically substitutes `B19013_001` (Median Household Income) for `B19113_001` (Median Family Income) as per Census Bureau recommendations.*
+
+**ACS sentinel values** such as `-666666666` (not available), `-888888888` (not applicable), and related codes are automatically replaced with `NaN` inside `calculate_adi()` before PCA is performed. Without this step, these codes in median dollar variables would become extreme outliers after standardization and corrupt the Financial Strength sub-index. A `UserWarning` is raised when sentinels are found, reporting the count replaced.
 
 ---
 

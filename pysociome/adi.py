@@ -29,6 +29,35 @@ def calculate_adi(data_raw, keep_indicators=False):
 
     df = data_raw.copy()
 
+    # --- ACS sentinel value replacement ---
+    # The Census Bureau uses specific negative integer codes in ACS estimates to
+    # indicate unavailable, non-applicable, or non-computable values:
+    #   -666666666  not available
+    #   -888888888  not applicable
+    #   -999999999  median falls in lowest/highest interval
+    #   -222222222  too few sample cases
+    #   -333333333  base is zero or rounds to zero
+    # See: https://www.census.gov/data/developers/data-sets/acs-1year/notes-on-acs-estimate-and-annotation-values.html
+    #
+    # These codes must be replaced with NaN before PCA. Without this step,
+    # sentinel values (e.g. -666666666) in median dollar variables
+    # (medianFamilyIncome, medianMortgage, medianRent, medianHouseValue) become
+    # extreme outliers (~10^6 standard deviations) after StandardScaler, which
+    # completely destroys the Financial Strength sub-index.
+    _SENTINELS = {-666666666, -888888888, -999999999, -222222222, -333333333}
+    numeric_cols = df.select_dtypes(include="number").columns
+    sentinel_mask = df[numeric_cols].isin(_SENTINELS)
+    sentinel_count = sentinel_mask.sum().sum()
+    if sentinel_count > 0:
+        df[numeric_cols] = df[numeric_cols].where(~sentinel_mask, other=np.nan)
+        warnings.warn(
+            f"calculate_adi: replaced {sentinel_count:,} ACS sentinel values "
+            f"(-666666666, -888888888, etc.) with NaN. These indicate "
+            f"unavailable/suppressed Census estimates.",
+            UserWarning,
+            stacklevel=2,
+        )
+
     # Identify total households column
     try:
         total_hh_col = get_total_hh_colname(df)
