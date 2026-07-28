@@ -12,11 +12,11 @@ setup(
         "requests",
     ],
     author="Hossein Lotfi",
-    author_email="hossein.lotfi@example.com",
+    author_email="hlotfi@ulri.org",
     description="Operationalizing Social Determinants of Health Data in Python",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/hosseinlotfi/pysociome",
+    url="https://github.com/ulfsri/fireRisk-pysociome",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -22,8 +22,8 @@
 To install `pysociome` locally:
 
 ```bash
-git clone https://github.com/yourusername/pysociome.git
-cd pysociome
+git clone https://github.com/ulfsri/fireRisk-pysociome.git
+cd fireRisk-pysociome
 pip install .
 ```
 
@@ -53,17 +53,31 @@ results = calculate_adi(df)
 print(results[['GEOID', 'NAME', 'ADI', 'Financial_Strength']])
 ```
 
-### 2. Fetch Data and Calculate (Planned)
-The package includes a `CensusClient` to fetch data:
+### 2. Fetch Data and Calculate
+The package includes a `CensusClient` to fetch data. You can provide your API key directly or use a `.env` file.
+
+#### Using a .env file (Recommended)
+Create a file named `.env` in your project root with your Census API key:
+```bash
+# Get your key at: https://api.census.gov/data/key_signup.html
+Census_API_KEY = your_api_key_here
+```
+
+Then the `CensusClient` will load it automatically:
 
 ```python
 from pysociome import CensusClient
 
-client = CensusClient(key="YOUR_CENSUS_API_KEY")
+# Automatically loads key from .env
+client = CensusClient()
 
-# Example: Fetch 2022 ACS 5-year data for tracts in Ohio (FIPS 39)
-# variables = ["B19113_001", "B25088_002", ...] (See variables.py for full list)
-raw_data = client.get_acs(year=2022, variables=variables, geography="tract", state="39")
+# Example: Fetch 2022 ACS 5-year data for all tracts in Ohio (State FIPS 39)
+raw_data = client.get_acs(
+    year=2022, 
+    variables=["B19113_001", "B25088_002"], 
+    geography="tract:*", 
+    state="39"
+)
 
 # Calculate ADI
 results = calculate_adi(raw_data)

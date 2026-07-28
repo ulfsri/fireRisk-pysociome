@@ -38,10 +38,53 @@ def calculate_adi(data_raw, keep_indicators=False):
         if 'total_households' in df.columns:
             total_hh_col = 'total_households'
             nonzero_hh = df[total_hh_col] != 0
+        elif 'housing_occupied_units' in df.columns:
+            total_hh_col = 'housing_occupied_units'
+            nonzero_hh = df[total_hh_col] != 0
         else:
             warnings.warn("Total households column not found. Assuming all rows have > 0 households.")
             nonzero_hh = pd.Series(True, index=df.index)
             total_hh_col = None
+
+    # Handle common descriptive column names
+    mapping = {
+        'income_household_median': 'medianHouseholdIncome',
+        'housing_monthly_costs_mortgage_median': 'medianMortgage',
+        'rent_gross_median': 'medianRent',
+        'housing_value_median': 'medianHouseValue',
+        'poverty_families_pct': 'pctFamiliesInPoverty',
+        'housing_owner_occupied_pct': 'pctOwnerOccupiedHousing',
+        'unemployed_rate_pct': 'pctPeopleUnemployed',
+        'education_high_school_pct': 'pctPeopleWithAtLeastHSEducation',
+        'education_bachelors_pct': 'pctPeopleWithBachelorDegree',
+        'housing_units_total': 'B25003_001', # Just to help calculate_indicators if needed
+        'housing_owner_occupied_units': 'B25003_002',
+    }
+    
+    # Target indicators for scaling (those that should be ratios)
+    ratio_indicators = [
+        'pctFamiliesInPoverty', 'pctOwnerOccupiedHousing', 
+        'pctPeopleLivingBelow150PctFederalPovertyLevel',
+        'pctHouseholdsWithChildrenThatAreSingleParent', 'pctHouseholdsWithNoVehicle',
+        'pctPeopleWithWhiteCollarJobs', 'pctPeopleUnemployed',
+        'pctPeopleWithAtLeastHSEducation', 'pctPeopleWithLessThan9thGradeEducation',
+        'pctHouseholdsWithOverOnePersonPerRoom'
+    ]
+
+    for old_col, new_col in mapping.items():
+        if old_col in df.columns and new_col not in df.columns:
+            df[new_col] = df[old_col]
+            
+            # Scale percentages to ratios if they appear to be in 0-100 range
+            if new_col in ratio_indicators and df[new_col].max() > 1.0:
+                df[new_col] = df[new_col] / 100.0
+
+    # Ensure NAME column exists
+    if 'NAME' not in df.columns:
+        if 'GEOID' in df.columns:
+            df['NAME'] = "Area " + df['GEOID'].astype(str)
+        else:
+            df['NAME'] = df.index.astype(str)
 
     # Calculate 15 ADI indicators
     try:

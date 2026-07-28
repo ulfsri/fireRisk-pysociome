@@ -10,7 +10,30 @@ class CensusClient:
     BASE_URL = "https://api.census.gov/data"
 
     def __init__(self, key=None):
+        if key is None:
+            # Try to load from .env file in common locations
+            key = self._load_key_from_env()
         self.key = key
+
+    def _load_key_from_env(self):
+        """Helper to find and read .env file for Census_API_KEY"""
+        import os
+        search_paths = [
+            os.getcwd(), 
+            os.path.dirname(os.getcwd()),
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ]
+        for path in search_paths:
+            env_path = os.path.join(path, '.env')
+            if os.path.exists(env_path):
+                try:
+                    with open(env_path, 'r') as f:
+                        for line in f:
+                            if 'Census_API_KEY' in line and '=' in line:
+                                return line.split('=')[1].strip().strip('"').strip("'")
+                except Exception:
+                    pass
+        return None
 
     def get_acs(self, year, variables, geography, state=None, county=None, survey="acs5"):
         """
@@ -18,8 +41,16 @@ class CensusClient:
         """
         url = f"{self.BASE_URL}/{year}/acs/{survey}"
         
+        # Append 'E' to ACS variables if not present (Estimates)
+        api_vars = []
+        for v in variables:
+            if "_" in v and not v.endswith(("E", "M", "A")):
+                api_vars.append(v + "E")
+            else:
+                api_vars.append(v)
+
         params = {
-            "get": "NAME," + ",".join(variables),
+            "get": "NAME," + ",".join(api_vars),
             "for": geography
         }
         
@@ -38,6 +69,10 @@ class CensusClient:
         data = response.json()
         headers = data[0]
         df = pd.DataFrame(data[1:], columns=headers)
+        
+        # Map back API names to requested names
+        name_map = dict(zip(api_vars, variables))
+        df = df.rename(columns=name_map)
         
         # In ACS, GEOID is often split into state, county, tract, etc.
         # We need to construct a unified GEOID column.
